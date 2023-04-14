@@ -189,11 +189,10 @@ def planning():
                         max_features = feat_left, criterion = crit_left)
 
     with c2:
-        lcat = []
         listcat = df["CATEGORY"].unique().tolist()
-        st.radio("Choose a Product Category", (listcat[0],listcat[1],listcat[2],listcat[3],listcat[4],listcat[5],listcat[6],
+        cat = st.radio("Choose a Product Category", (listcat[0],listcat[1],listcat[2],listcat[3],listcat[4],listcat[5],listcat[6],
                     listcat[7],listcat[8],listcat[9],listcat[10],listcat[11],listcat[12],listcat[13],listcat[14],listcat[15],listcat[16],listcat[16]))
-        
+    
  
 
 
@@ -208,20 +207,20 @@ def planning():
 
 
 
-    # ml_sel = df[df["CATEGORY"]==cat]
-    # ml_timely = ml_sel.pivot_table(columns="DATE", values="PROFIT", aggfunc="sum", index=["PRODUCT_NAME"]).fillna(0)
+    ml_sel = df[df["CATEGORY"]==cat]
+    ml_timely = ml_sel.pivot_table(columns="DATE", values="PROFIT", aggfunc="sum", index=["PRODUCT_NAME"]).fillna(0)
 
-    # X = ml_timely.drop(columns = "2023-03-01")
-    # y = ml_timely["2023-03-01"]
-    # X_train, X_test, y_train, y_test = train_test_split(X,y, test_size = 0.4, random_state = 43)
-    # num_train = X_train.select_dtypes(np.number)
-    # num_test = X_test.select_dtypes(np.number)
-    # scaler = MinMaxScaler().fit(num_train)
-    # cols = scaler.get_feature_names_out(input_features = num_train.columns)
-    # num_train_scaled = scaler.transform(num_train)
-    # num_test_scaled = scaler.transform(num_test)
-    # num_train_scaled = pd.DataFrame(num_train_scaled, columns = cols)
-    # num_test_scaled = pd.DataFrame(num_test_scaled, columns = cols)
-    # X_train_processed = num_train_scaled.copy()
-    # X_test_processed = num_test_scaled.copy()
+    X = ml_timely.drop(columns = "2023-03-01")
+    y = ml_timely["2023-03-01"]
+    X_train, X_test, y_train, y_test = train_test_split(X,y, test_size = 0.4, random_state = 43)
+    num_train = X_train.select_dtypes(np.number)
+    num_test = X_test.select_dtypes(np.number)
+    scaler = MinMaxScaler().fit(num_train)
+    cols = scaler.get_feature_names_out(input_features = num_train.columns)
+    num_train_scaled = scaler.transform(num_train)
+    num_test_scaled = scaler.transform(num_test)
+    num_train_scaled = pd.DataFrame(num_train_scaled, columns = cols)
+    num_test_scaled = pd.DataFrame(num_test_scaled, columns = cols)
+    X_train_processed = num_train_scaled.copy()
+    X_test_processed = num_test_scaled.copy()
     
