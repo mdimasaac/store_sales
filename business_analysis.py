@@ -1,13 +1,14 @@
-def overview():
+def business_analysis():
     import streamlit as st
     import pandas as pd
     import snowflake.connector
     import plotly.express as px
     import plotly.graph_objects as go
     from streamlit_plotly_events import plotly_events
+    st.write('<div style="text-align: left; color: yellow;"><h3><em>Business Analysis</em></h3></div>', unsafe_allow_html=True)
+    st.write('<div style="text-align: left; color: yellow;"><h5><em>Hint: Click on the month(s) to display the data.</em></h5></div>', unsafe_allow_html=True)
 
-    st.text("overview")
-    conn = snowflake.connector.connect(user = "mdimasaac", password = "Qaz1234.", account = "vliobpf-yr09142",
+    conn = snowflake.connector.connect(user = "mdimasaac", password = "Snowflake123", account = "vliobpf-yr09142",
                                     database = "store_it", schema = "store_schema")
     cur = conn.cursor()
     q_df = "select * from store_data"
@@ -361,85 +362,98 @@ def overview():
     for i in range(len(y)):
         data.append(go.Bar(name=M[i]+" "+str(y[i]), x=x,
              y=df[["CATEGORY","PROFIT"]][(df["MONTH"] == m[i]) & (df["YEAR"] == y[i])].groupby(["CATEGORY"]).sum()["PROFIT"]))
-    
+
     fig = go.Figure(data=data)
     fig.update_layout(barmode='group', template="plotly_dark", autosize=True)
     selected = plotly_events(fig)    
+    st.write('<div style="text-align: left; color: yellow;"><h5><em>Hint: Click on the bar to see details.</em></h5></div>', unsafe_allow_html=True)
 
     if len(selected) != 0:
-        colf1,colf2 = st.columns([2,1])
+        
         selected2 = []
-        with colf1:
-            try:
-                cat = selected[0][list(selected[0].keys())[0]]
-                sel = (selected[0][list(selected[0].keys())[2]])
-            except:
-                pass
-            fil = df[(df["CATEGORY"]==cat) & (df["YEAR"]==y[sel]) & (df["MONTH"]==m[sel])].sort_values(by="PROFIT", ascending = False)
-            top = fil.groupby(["PRODUCT_NAME"]).sum().sort_values(by="PROFIT", ascending = False).head(10).index.values.tolist()
-            prod = []
-            for i in fil["PRODUCT_NAME"]:
-                if (i in top):
-                    prod.append(i)
-                else:
-                    prod.append("Others")
-            fil["PRODUCT_NAME"] = prod
-            filtered = fil.groupby(["PRODUCT_NAME"]).sum().sort_values(by="PROFIT", ascending = False)
-            labels = filtered.index.values.tolist()
-            pull = []
-            for i in range(len(labels)):
-                pull.append(0.1)
-            fig2 = go.Figure(go.Pie(
-                                labels = labels,
-                                values = filtered.PROFIT.values.round(2).tolist(),hovertemplate = "%{label}<br>%{percent} <extra></extra>",
-                                hole=.7,
-                                marker_line_color='white',
-                                marker_line_width=1.25,
-                                pull= pull,
-                                textinfo="label+percent"
-                            ))
-            fig2.update_layout(
-                        autosize=True,  # Automatically adjust size to fit entire layout
-                        margin=dict(l=0, r=0, t=0, b=0),)  # Remove margin around chart
-            fig2.update_layout(showlegend=False, template="plotly_dark")
-            fig2.update_layout(
-            font=dict(
-            size=16,))
+        
+        try:
+            cat = selected[0][list(selected[0].keys())[0]]
+            sel = (selected[0][list(selected[0].keys())[2]])
+        except:
+            pass
+        fil = df[(df["CATEGORY"]==cat) & (df["YEAR"]==y[sel]) & (df["MONTH"]==m[sel])].sort_values(by="PROFIT", ascending = False)
+        top = fil.groupby(["PRODUCT_NAME"]).sum().sort_values(by="PROFIT", ascending = False).head(10).index.values.tolist()
+        prod = []
+        for i in fil["PRODUCT_NAME"]:
+            if (i in top):
+                prod.append(i)
+            else:
+                prod.append("Others")
+        fil["PRODUCT_NAME"] = prod
+        filtered = fil.groupby(["PRODUCT_NAME"]).sum().sort_values(by="PROFIT", ascending = False)
+        labels = filtered.index.values.tolist()
+        pull = []
+        for i in range(len(labels)):
+            pull.append(0.1)
+        fig2 = go.Figure(go.Pie(
+                            labels = labels,
+                            values = filtered.PROFIT.values.round(2).tolist(),hovertemplate = "%{label}<br>%{percent} <extra></extra>",
+                            hole=.7,
+                            marker_line_color='white',
+                            marker_line_width=1.25,
+                            pull= pull,
+                            textinfo="label+percent"
+                        ))
+        fig2.update_layout(
+                    autosize=True,  # Automatically adjust size to fit entire layout
+                    margin=dict(l=0, r=0, t=0, b=0),)  # Remove margin around chart
+        fig2.update_layout(showlegend=False, template="plotly_dark")
+        fig2.update_layout(
+        font=dict(
+        size=16,))
 
-            selected2 = plotly_events(fig2)
-            
-        with colf2:
-            if len(selected2) != 0:
-                ind = selected2[0][list(selected2[0].keys())[1]]
-                st.text(" ")
-                st.text(" ")
-                st.text(" ")
-                st.text(" ")
-                st.write("_________") 
-                st.text("Showing Details for Clicked Bar Chart:")
-                st.text(cat+" in "+M[sel]+" "+str(y[sel]))
-                cf1,cf2 = st.columns(2)
-                with cf1:
-                    st.text("Num. of Transactions")
-                    st.text(fil.shape[0])
-                with cf2:
-                    st.text("Total Items Sold")
-                    st.text(fil["QUANTITY"].sum())
-                st.write("_________")
-                st.text("Showing Details for Clicked Donut Area:")
-                st.text(labels[ind])
-                cf3,cf4 = st.columns(2)
-                with cf3:
-                    st.text("Profit per Item")
-                    st.text(filtered["PROFIT_PER_ITEM"][filtered.index.values == labels[ind]].values.tolist()[0])
-                with cf4:
-                    st.text("Sum Profit by This Item")
-                    st.text(fil["PROFIT"][fil["PRODUCT_NAME"] == labels[ind]].sum())
-                st.write("_________") 
+        selected2 = plotly_events(fig2)
+        st.write('<div style="text-align: left; color: yellow;"><h5><em>Hint: Click on the donut area to see details.</em></h5></div>', unsafe_allow_html=True)
 
         if len(selected2) != 0:
             ind = selected2[0][list(selected2[0].keys())[1]]
-            st.text("Line Chart for " + labels[ind])
+            # st.text(" ")
+            # st.text(" ")
+            # st.text(" ")
+            # st.text(" ")
+            st.write("_________") 
+            st.text("Showing Details for Clicked Bar Chart:")
+            st.text(cat+" in "+M[sel]+" "+str(y[sel]))
+            cf1,cf2 = st.columns(2)
+            with cf1:
+                st.write('<div style="text-align: left; color: yellow;"><h3><em>Num. of Tansactions</em></h3></div>', unsafe_allow_html=True)
+                st.write('<div style="text-align: left; color: yellow;"><h1><em>'+str(fil.shape[0])+'</em></h1></div>', unsafe_allow_html=True)
+
+                # st.text("Num. of Transactions")
+                # st.text(fil.shape[0])
+            with cf2:
+                st.write('<div style="text-align: left; color: yellow;"><h3><em>Total Items Sold</em></h3></div>', unsafe_allow_html=True)
+                st.write('<div style="text-align: left; color: yellow;"><h1><em>'+str(fil["QUANTITY"].sum())+'</em></h1></div>', unsafe_allow_html=True)
+
+                # st.text("Total Items Sold")
+                # st.text(fil["QUANTITY"].sum())
+            st.write("_________")
+            st.text("Showing Details for Clicked Donut Area:")
+            st.text(labels[ind])
+            cf3,cf4 = st.columns(2)
+            with cf3:
+                st.write('<div style="text-align: left; color: yellow;"><h3><em>Profit per Item</em></h3></div>', unsafe_allow_html=True)
+                st.write('<div style="text-align: left; color: yellow;"><h1><em>'+str(filtered["PROFIT_PER_ITEM"][filtered.index.values == labels[ind]].values.tolist()[0])+'</em></h1></div>', unsafe_allow_html=True)
+
+                # st.text("Profit per Item")
+                # st.text(filtered["PROFIT_PER_ITEM"][filtered.index.values == labels[ind]].values.tolist()[0])
+            with cf4:
+                st.write('<div style="text-align: left; color: yellow;"><h3><em>Sum Profit by This Item</em></h3></div>', unsafe_allow_html=True)
+                st.write('<div style="text-align: left; color: yellow;"><h1><em>'+str(round(fil["PROFIT"][fil["PRODUCT_NAME"] == labels[ind]].sum(),2))+'</em></h1></div>', unsafe_allow_html=True)
+
+                # st.text("Sum Profit by This Item")
+                # st.text(fil["PROFIT"][fil["PRODUCT_NAME"] == labels[ind]].sum())
+            st.write("_________") 
+
+        if len(selected2) != 0:
+            ind = selected2[0][list(selected2[0].keys())[1]]
+            st.text("Profit growth for item: ")
             dfline = df[["DATE","PROFIT"]][df["PRODUCT_NAME"] == labels[ind]].sort_values(by="DATE", ascending = True)
             fig3 = px.line(dfline, x="DATE", y="PROFIT", title=labels[ind])
             fig3.update_layout(template = "plotly_dark",autosize = True)
