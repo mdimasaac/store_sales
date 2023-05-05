@@ -7,5 +7,4 @@ scikit-learn==1.2.2
 streamlit-plotly-events
 snowflake-connector-python==3.0.2
 DateTime==5.1
-snowflake-snowpark-python
 plotly-express==0.4.1
